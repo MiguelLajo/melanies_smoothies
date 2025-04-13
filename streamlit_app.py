@@ -1,6 +1,7 @@
 # Import python packages
 import streamlit as st
 from snowflake.snowpark.functions import col
+import requests
 
 # Write directly to the app
 st.title(":cup_with_straw: Customize your Smoothie! :cup_with_straw:")
@@ -24,8 +25,12 @@ ingredients_list = st.multiselect(
 
 if ingredients_list:
     ingredients_string = ' '.join(ingredients_list)  # Más eficiente que el loop
-    
-    # Sentencia CORRECTA que menciona ambas columnas
+
+    for fruit_chosen in ingredients_list:
+        ingredients_string += fruit_chosen + ' '
+        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
+        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+  
     my_insert_stmt = """INSERT INTO smoothies.public.orders(ingredients, name_on_order)
             VALUES ('""" + ingredients_string + """','""" + name_on_order + """')"""
     
@@ -38,8 +43,8 @@ if ingredients_list:
         except Exception as e:
             st.error(f"Order failed: {str(e)}")
 
-import requests
-smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
-# st.text(smoothiefroot_response.json())
-sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+
+
+
+
 
